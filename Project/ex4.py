@@ -1,45 +1,34 @@
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
-from numpy.fft import fft2
-from matplotlib import pyplot as plt
-
-image = cv2.imread('images project1/fog.jpg')
-greyIm = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-info = np.iinfo(greyIm.dtype)
-doubleGrey = greyIm.astype(np.float64)/info.max
-#
-#
-height, width = doubleGrey.shape
-x = np.linspace(0, 1, width)
-y = np.linspace(0, height-1, height)
-#
-#
-#transformX = np.cos(x*np.pi)
-#transformY = np.cos(y*np.pi)
-#
-# #transform1 = np.reshape(transformX, (doubleGrey.shape[0], doubleGrey.shape[1]))
-# #transform2 = np.reshape(transformY, (doubleGrey.shape[0], 1))
-# #transform = transform1 * transform2
-noise = doubleGrey + np.cos(np.pi*x*32)*0.25
-#
-# #temp = fft2(doubl e(image))
-cv2.imshow('ogGrey', greyIm)
-cv2.imshow('Grey', image)
-cv2.imshow('fftPhoto ', noise)
-
-fft2Im = np.fft.fft2(greyIm)
-
-#spec_fft = np.fft.fftshift(fft2Im)
-#back= np.real(np.fft.ifft2(np.fft.ifftshift(spec_fft)))
-#cv2.imshow('spec', spec_fft)
-#cv2.imshow('back',back)
-#powerSpec = np.abs(fft2Im)**2
 
 
-#plt.plot(powerSpec)
-#plt.show()
+def getMagSpectrum(im):
+    imG = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    ftIm = np.fft.fft2(imG)
+    ftIm = np.fft.fftshift(ftIm)
+    #magnitude spectrum plot
+    magnitudeSpec = np.multiply(20, np.log(np.abs(ftIm)))
+    return magnitudeSpec
 
 
+image = cv2.imread("images project1/crayons.jpg")
+image = cv2.resize(image, (400, 400))
+cv2.imshow('original', image)
+padded = np.pad(image, ((0,0), (500,0), (0,0)), mode='constant')
+cv2.imshow('padded', padded)
+
+ogMS = getMagSpectrum(image)
+paddedMS = getMagSpectrum(padded)
+plt.imshow(ogMS)
+plt.title('Magnitude Spectrum of original image')
+plt.show()
+
+plt.imshow(paddedMS)
+plt.title('Magnitude Spectrum of Padded image ')
+plt.show()
+# cv2.imwrite('images project1/paddedCrayons.jpg', padded)
+cv2.imshow('padded', padded)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()

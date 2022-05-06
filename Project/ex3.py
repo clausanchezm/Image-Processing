@@ -1,26 +1,19 @@
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 
 
-#def toPolar(image):
-#v   height, width, z = image.shape
-#  toReturn = np.zeros_like(image)
-#   radius = int(np.sqrt(height*height+width*width))
-#   theta = int(np.arctan2(width, height))
-#   for i in range(0, height-1):
-#       for j in range(0, width-1):
-#           x = radius * np.cos(theta)
-#           y = radius * np.sin(theta)
-#           toReturn[int(y), int(x)] = image[i, j]
-#
-#   return toReturn
+def toPolar(image):
+    height, width, z = image.shape
+    radius = int(np.sqrt((height/2)**2 + (width/2)**2))
+    polarIm = cv2.linearPolar(image, (height/2, width/2), radius, cv2.WARP_FILL_OUTLIERS)
+    return polarIm
 
+#https://stackoverflow.com/questions/50899692/most-dominant-color-in-rgb-image-opencv-numpy-python
 def getDominantColor(im):
     colors, count = np.unique(im.reshape(-1,im.shape[-1]), axis=0, return_counts=True)
     color = colors[count.argmax()]
     x, y, z = im.shape
-    C = np.zeros((x, y, z), dtype= "uint8")
+    C = np.zeros((x, y, z), dtype = "uint8")
     for i in range(0, x):
         for j in range(0, y):
             C[i, j] = color
@@ -28,31 +21,31 @@ def getDominantColor(im):
 
 
 def cartoonify(im):
-    #uniform to be applied
-    color = getDominantColor(im)
+    # uniform to be applied
+   # color = getDominantColor(im)
     imG = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    imBlur = cv2.medianBlur(imG, 9)
+    # blur to have a smoother result
+    imBlur = cv2.medianBlur(im, 9)
     # getting the edges of image
-    #imEdges = cv2.adaptiveThreshold(imBlur, 255,  cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 9)
-    edges = cv2.Canny(im, 90, 150)
+    # imEdges = cv2.adaptiveThreshold(imBlur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 71, 5)
+    imBilateral = cv2.bilateralFilter(imBlur, 4, 100, 100)
 
-    cartoon = cv2.bitwise_or(im, color, mask=edges)
+    edges = cv2.Canny(imG, 90, 150)
+    invEg = np.abs(255 - edges)
+    cartoon = cv2.bitwise_and(imBilateral, imBilateral, mask=invEg)
     return cartoon
 
 
 image = cv2.imread("images project1/pink.jpg")
-# #image = toPolar(polarIm)
-# image64 = polarIm.astype(np.float64)
-#
-# r = np.sqrt(((image64.shape[0]/2.0)**2) + ((image64.shape[1]/2.0)**2))
-# polarizedIm = cv2.linearPolar(image64, (image64.shape[0]/2.0, image64.shape[1]/2.0), r, cv2.WARP_FILL_OUTLIERS)
+image = cv2.resize(image, (400, 400))
+polar = toPolar(image)
 
-# cv2.imshow('polar im',polarizedIm)
-# cv2.imshow('og', polarIm)
-
+cv2.imshow('polar im', polar)
+cv2.imshow('og', image)
 
 cartooned = cartoonify(image)
-cv2.imshow('blaketer', cartooned)
+cv2.imshow('cartoon', cartooned)
+# cv2.imwrite('images project1/cartoonF.jpg', cartooned)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
