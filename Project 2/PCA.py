@@ -1,8 +1,7 @@
 import glob
 
-import cv2
+
 import cv2 as c
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -18,12 +17,12 @@ def negativePI(im):
 
 def getHSV(image):
     res = c.cvtColor(image, c.COLOR_BGR2RGB)
-    res = c.cvtColor(image, c.COLOR_RGB2HSV)
+    res = c.cvtColor(res, c.COLOR_RGB2HSV)
     return res
 
 
-def getMatrixData(list):
-    matrix = np.matrix([var.flatten() for var in list])
+def getMatrixData(variations):
+    matrix = np.matrix([var.flatten() for var in variations])
     return matrix
 
 
@@ -98,8 +97,6 @@ c.imshow('babyboy B+90', face3)
 # f3_i2 = changeIntensity(face3, 2)
 #
 # f1_b60 = changeBrightness(face1, 60)
-
-
 
 c.waitKey(0)
 c.destroyAllWindows()
