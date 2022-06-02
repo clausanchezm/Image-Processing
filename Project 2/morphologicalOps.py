@@ -44,10 +44,11 @@ def plotDiff(intens, sizes, original):
 
 # image passed has already been closed and opened
 def countSE(imageoC, upperBound, lowerBound):
-    # label identifies the white regions of the threshold im; so identifies the oranges
+    # label identifies the white regions of the threshold im; so identifies the oranges. for oranges it is enough to count them
     label_im = label(imageoC)
     # regions: organizes the labels by ordering them all into a matrix with coors
     regions = regionprops(label_im)
+    # print(len(regions)-1)
     io.imshow(label_im)
 
     masks = []
@@ -56,6 +57,7 @@ def countSE(imageoC, upperBound, lowerBound):
     for num, x in enumerate(regions):
         area = x.area
         convex_area = x.convex_area
+        # ratios UB &LB to adjust to shape of the objects counting
         if (num != 0 and (area > 10) and (convex_area / area < upperBound)
                 and (convex_area / area > lowerBound)):
             masks.append(regions[num].convex_image)
@@ -85,7 +87,8 @@ gB = c.cvtColor(g, c.COLOR_RGB2GRAY)
 # twixing the param for most convinience
 num, orangeT = c.threshold(orangesB, 127, 255, c.THRESH_BINARY)
 num2, otT = c.threshold(otB, 135, 255, c.THRESH_BINARY)
-num3, gT = c.threshold(gB, 127, 255, c.THRESH_BINARY)
+num3, gT = c.threshold(gB, 130, 255, c.THRESH_BINARY)
+c.imshow('threshold', gT)
 
 
 # 3.1 COUNTING ORANGES
@@ -97,17 +100,18 @@ closedO = close(openO, circleA)
 openT = open(otT, circleB)
 closedT = close(openT, circleB)
 
-countSE(closedO, 3, 0.1)
+# countSE(closedO, 3, 0.1)
+
 # print(countSE(closedT, 1.061, 0.90))
 
 
 # 3.2 GRANULOMETRY
-sizes = np.linspace(1, 25, 25)
-# inten = granulometry(gT, sizes)
-# plt.plot(sizes, inten)
-# plt.title('sum of intensities ')
-# plt.show()
-# plotDiff(inten, sizes, gT)
+sizes = np.linspace(1, 60, 60)
+inten = granulometry(gT, sizes)
+plt.plot(sizes, inten)
+plt.title('sum of intensities ')
+plt.show()
+plotDiff(inten, sizes, gT)
 
 
 c.waitKey(0)
