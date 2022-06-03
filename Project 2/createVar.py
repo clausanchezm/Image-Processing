@@ -13,7 +13,7 @@ def getHSV(image):
     return res
 
 
-face1 = c.imread('images project 2/womanVariation/woman.jpg')
+face1 = c.imwrite('images project 2/womanVariation/woman.jpg')
 face2 = c.imread('images project 2/boyVariations/kid2 - Copy.jpg')
 face3 = c.imread('images project 2/manVars/manReshaped.jpg')
 
